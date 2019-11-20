@@ -12,6 +12,7 @@ import datetime
 total_list = []
 
 
+
 """ Öppnar json filen där objekten från förra programkörningen finns lagrade som dikter,
     och för över de till listan 'dict_list'. För att sedan lägga till de i listan 'total_list'
     som är listan som senare kommer att sorteras in i en variabel och printas när användaren 
@@ -61,7 +62,7 @@ class Cd():
     def __str__(self):
         return "Title: {}\nArtist: {}\nSongs: {}\nLength: {}\nPurchase price: {}\nType: {}\n".format(self.Title, self.Artist, self.Songs, self.Length, self.Purchase_price, self.type)
 
-    def create_cd(self, cd):
+    def create_cd(self, cd, conn):
         """Skapar cd objekt"""
 
         conn.sendall(f"Add cd \n".encode())
@@ -131,7 +132,7 @@ class Movie():
                                                                                                 self.Purchase_price,
                                                                                                 self.Purchase_year,self.type)
 
-    def create_movie(self, movie):
+    def create_movie(self, movie, conn):
         """Skapar film objekt"""
 
         conn.sendall(f"Add movie \n".encode())
@@ -165,7 +166,7 @@ class Movie():
         self.dict = {"Title": input_title, "Director": input_director, "Length": input_length,
                      "Purchase price": input_purchase_price,
                      "Purchase year": input_purchase_year, "Type": "movie"}
-    def check_object_year(self):
+    def check_object_year(self,conn):
         """Kollar årsskillnaden och beräknar priset på filmen utifrån det skick på filmen
            som användaren matar in och årsskillnaden.
            Tog hjälp av klasskamrater för att lösa uträkningarna."""
@@ -202,38 +203,67 @@ class Book():
     def __str__(self):
         return "Title: {}\nAuthor: {}\nPages: {}\nPurchase Price: {}\nPurchase Year: {}\nType: {}\n".format(self.Title, self.Author, self.Pages, self.Purchase_price, self.Purchase_year, self.type)
 
-    def create_book(self, book):
+    def create_book(self, book, conn):
         """Skapar bok objekt"""
+        #bookQ = ["Name, "Author"]
+        #answer = []
+        #for q in bookQ:
+        #    send(q)
+        #questions = ["Enter the name of the book: ", "Enter the author: ","Enter amount of pages:","Enter purchase price:", "Enter purchase year: "   ]
+        #id = 0
+        #for x in questions:
+            #id += 1
+            #conn.sendall(x.encode())
 
-        conn.sendall("Enter the name of the book: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_title = data
-        conn.sendall("Enter the author: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_author = data
-        conn.sendall("Enter amount of pages:".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_pages = int(data)
-        conn.sendall("Enter purchase price:".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_purchase_price = int(data)
-        conn.sendall("Enter purchase year: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_purchase_year = int(data)
+        while True:
+            conn.sendall("Enter the name of the book: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_title = data
+            conn.sendall("Enter the author: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_author = data
+            conn.sendall("Enter amount of pages:".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_pages = int(data)
+            conn.sendall("Enter purchase price:".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_purchase_price = int(data)
+            conn.sendall("Enter purchase year: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_purchase_year = int(data)
 
-        self.Title = input_title
-        self.Author = input_author
-        self.Pages = input_pages
-        self.Purchase_price = input_purchase_price
-        self.Purchase_year = input_purchase_year
-        self.type = "book"
-        self.dict = {"Title": input_title, "Author": input_author, "Pages": input_pages, "Purchase price": input_purchase_price,
-                     "Purchase year": input_purchase_year, "Type": "book"}
+            self.Title = input_title
+            self.Author = input_author
+            self.Pages = input_pages
+            self.Purchase_price = input_purchase_price
+            self.Purchase_year = input_purchase_year
+            self.type = "book"
+            self.dict = {"Title": input_title, "Author": input_author, "Pages": input_pages, "Purchase price": input_purchase_price,
+                         "Purchase year": input_purchase_year, "Type": "book"}
+            #if data == "quit":
+                #conn.sendall(data.encode())
+                #break
+            break
 
     def object_dict(self, list):
         """Lägger till objektets dikt i dict_list"""
@@ -277,60 +307,69 @@ class Library():
     def print_list(self, list):
         return "\n".join([str(obj) for obj in list])
 
-    def create_object(self, type, lista, dict_list):
+    def create_object(self, type, lista, dict_list, conn, adress):
         """Skapar ett default objekt som sedan skickas in i funktioner som gör att:
             användaren kan skriva över dess attributer via input, korrigerar priset,
             lägger till objektets dikt i 'dict_list', och lägger till objektet i total_list."""
         try:
-            if type == "book":
-                default_object = Book()
-                conn.sendall(f"Add book: ".encode())
-                default_object.create_book(default_object)
-                if not default_object.Title or not default_object.Author:
-                    raise ValueError("\nInvalid title or author! Object not added to the library.")
-                default_object.check_object_year()
-                default_object.object_dict(dict_list)
-                default_object.dict_price()
-                lista.append(default_object)
-                conn.sendall(f"Object added succesfully in '{type}'".encode())
-                return default_object
-            elif type == "movie":
-                default_object = Movie()
-                default_object.create_movie(default_object)
-                if not default_object.Title or not default_object.Director:
-                    raise ValueError("\nInvalid title or author! Object not added to the library.")
-                default_object.check_object_year()
-                default_object.object_dict(dict_list)
-                default_object.dict_price()
-                lista.append(default_object)
-                conn.sendall(f"Object added succesfully in '{type}'".encode())
-                return default_object
-            elif type == "cd":
-                default_object = Cd()
-                default_object.create_cd(default_object)
-                if not default_object.Title or not default_object.Artist:
-                    raise ValueError("\nInvalid title or artist! Object not added to the library.")
-                default_object.object_dict(dict_list)
-                default_object.check_object_value(dict_list)
-                default_object.dict_price()
-                lista.append(default_object)
-                conn.sendall(f"Object added succesfully in '{type}'".encode())
-                return default_object
-            else:
-                print(f"\nThe media type '{type}' doesn't exist in the library")
-        except ValueError as error:
-            print(error)
+            while True:
+                if type == "book":
+                    default_object = Book()
+                    conn.sendall(f"Add book: ".encode())
+                    default_object.create_book(default_object, conn)
+                    #if not default_object.Title or not default_object.Author:
+                        #raise ValueError
+                    default_object.check_object_year()
+                    default_object.object_dict(dict_list)
+                    default_object.dict_price()
+                    lista.append(default_object)
+                    conn.sendall(f"Object added succesfully in Library'".encode())
+                    print(f"A {type} was added in the Library by {(adress)}")
+                    return default_object
+                elif type == "movie":
+                    default_object = Movie()
+                    default_object.create_movie(default_object, conn)
+                    #if not default_object.Title or not default_object.Director:
+                     #   raise ValueError(conn.sendall("\nInvalid title or author! Object not added to the library."))
+                    default_object.check_object_year(conn)
+                    default_object.object_dict(dict_list)
+                    default_object.dict_price()
+                    lista.append(default_object)
+                    conn.sendall(f"Object added succesfully in Library".encode())
+                    print(f"A {type} was added in the Library by {(adress)}")
+                    return default_object
+                elif type == "cd":
+                    default_object = Cd()
+                    default_object.create_cd(default_object, conn)
+                    #if not default_object.Title or not default_object.Artist:
+                      #  raise ValueError("\nInvalid title or artist! Object not added to the library.")
+                    default_object.object_dict(dict_list)
+                    default_object.check_object_value(dict_list)
+                    default_object.dict_price()
+                    lista.append(default_object)
+                    conn.sendall(f"Object added succesfully in Library".encode())
+                    print(f"A {type} was added in the Library by {(adress)}")
+                    return default_object
+                elif type == "quit":
+                    conn.sendall(type.encode())
+                    break
+                else:
+                    conn.sendall(f"\nThe media type '{type}' doesn't exist in the library".encode())
 
-def broadcast(data):
+        except ValueError as error:
+            conn.sendall("\nInvalid input! Object not added to the library. Please try again".encode())
+
+def broadcast(data, conn, adress):
     data = data.lower()
+
     if data == "1":
         text = "What type of object do you want to register?(Book, movie or CD): "
         conn.sendall(text.encode())
         data = conn.recv(1024)
         data = data.decode()
         library_create_object = Library()
-        library_create_object.create_object(data, total_list, dict_list)
-        print(f"A {data} was added in the Library by {adress}")
+        library_create_object.create_object(data, total_list, dict_list, conn, adress)
+
     elif data == "2":
         print_library = Library()
         sorted_list = print_library.sorting_list(total_list)
@@ -339,7 +378,8 @@ def broadcast(data):
         for book in new:
             conn.sendall(book.encode())
 
-def recive(conn):
+
+def recive(conn, adress):
     while True:
         try:
             conn.sendall(f"\n1. Add an object.  2. Show Library.  \n Select an option: ".encode())
@@ -350,10 +390,11 @@ def recive(conn):
             elif data == "quit":
                 conn.sendall(data.encode())
                 break
-            broadcast(data)
+            broadcast(data, conn, adress)
         except Exception:
             break
     conn.close()
+
     with open("reg.json", "w") as close_file:
         json.dump(dict_list, close_file)
         close_file.close()
@@ -361,47 +402,10 @@ def recive(conn):
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("172.20.201.140", 65432))
 server.listen()
+clients = {}
 
 while True:
     conn, adress = server.accept()
-    myThread = Thread(target=recive, args=(conn,), daemon=True)
+    clients[conn] = adress
+    myThread = Thread(target=recive, args=(conn,adress), daemon=True)
     myThread.start()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

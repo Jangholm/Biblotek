@@ -12,13 +12,13 @@ def recive_from(client):
             break
         elif data == b'quit':
             break
-        Display = "\n" + data.decode()
+        Display = data.decode() + "\n"
         gui.setTextArea("Data", Display)
         gui.clearEntry("Input")
-    #client.close()
+
 
 def press(name):
-    #global client
+    global client
     if name == "Close":
         client.sendall(b'quit')
         myThread.join()
