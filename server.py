@@ -64,38 +64,54 @@ class Cd():
 
     def create_cd(self, cd, conn):
         """Skapar cd objekt"""
+        while True:
+            conn.sendall(f"Add cd \n".encode())
+            conn.sendall("Enter the name of the cd: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_title = data
+            conn.sendall("Enter the artist: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_artist = data
+            conn.sendall("Enter the amount of songs: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_songs = int(data)
+            conn.sendall("Enter the duration (min): ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_length = data
+            conn.sendall("Enter purchase price: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_purchase_price = int(data)
 
-        conn.sendall(f"Add cd \n".encode())
-        conn.sendall("Enter the name of the cd: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_title = data
-        conn.sendall("Enter the artist: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_artist = data
-        conn.sendall("Enter the amount of songs: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_songs = int(data)
-        conn.sendall("Enter the duration (min): ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_length = data
-        conn.sendall("Enter purchase price: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_purchase_price = int(data)
-
-        self.Title = input_title
-        self.Artist = input_artist
-        self.Length = input_length
-        self.Songs = input_songs
-        self.Purchase_price = input_purchase_price
-        self.type = "cd"
-        self.dict = {"Title": input_title, "Artist": input_artist, "Length": input_length,
-                     "Purchase price": input_purchase_price, "Songs": input_songs,
-                     "Type": "cd"}
+            self.Title = input_title
+            self.Artist = input_artist
+            self.Length = input_length
+            self.Songs = input_songs
+            self.Purchase_price = input_purchase_price
+            self.type = "cd"
+            self.dict = {"Title": input_title, "Artist": input_artist, "Length": input_length,
+                         "Purchase price": input_purchase_price, "Songs": input_songs,
+                         "Type": "cd"}
+            break
 
     def object_dict(self, list):
         """Lägger till objektets dikt i dict_list"""
@@ -131,41 +147,57 @@ class Movie():
                                                                                                 self.Length,
                                                                                                 self.Purchase_price,
                                                                                                 self.Purchase_year,self.type)
-
     def create_movie(self, movie, conn):
         """Skapar film objekt"""
+        while True:
+            conn.sendall(f"Add movie \n".encode())
+            conn.sendall("Enter the name of the movie: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_title = data
+            conn.sendall("Enter the director: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_director = data
+            conn.sendall("Enter the duration (min): ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_length = int(data)
+            conn.sendall("Enter purchase price: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_purchase_price = int(data)
+            conn.sendall("Enter purchase year: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_purchase_year = int(data)
 
-        conn.sendall(f"Add movie \n".encode())
-        conn.sendall("Enter the name of the movie: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_title = data
-        conn.sendall("Enter the director: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_director = data
-        conn.sendall("Enter the duration (min): ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_length = int(data)
-        conn.sendall("Enter purchase price: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_purchase_price = int(data)
-        conn.sendall("Enter purchase year: ".encode())
-        data = conn.recv(1024)
-        data = data.decode()
-        input_purchase_year = int(data)
+            self.Title = input_title
+            self.Director = input_director
+            self.Length = input_length
+            self.Purchase_price = input_purchase_price
+            self.Purchase_year = input_purchase_year
+            self.type = "movie"
+            self.dict = {"Title": input_title, "Director": input_director, "Length": input_length,
+                         "Purchase price": input_purchase_price,
+                         "Purchase year": input_purchase_year, "Type": "movie"}
+            break
 
-        self.Title = input_title
-        self.Director = input_director
-        self.Length = input_length
-        self.Purchase_price = input_purchase_price
-        self.Purchase_year = input_purchase_year
-        self.type = "movie"
-        self.dict = {"Title": input_title, "Director": input_director, "Length": input_length,
-                     "Purchase price": input_purchase_price,
-                     "Purchase year": input_purchase_year, "Type": "movie"}
     def check_object_year(self,conn):
         """Kollar årsskillnaden och beräknar priset på filmen utifrån det skick på filmen
            som användaren matar in och årsskillnaden.
@@ -177,6 +209,10 @@ class Movie():
         while value == 0 or value > 10:
             conn.sendall("Enter the value of the movie '1 to 10' (1= very bad, 10= very good): ".encode())
             data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
             value = int(data)
         reduction = value * 0.1
         self.Purchase_price = self.Purchase_price * (0.9**year_difference) * reduction
@@ -355,6 +391,7 @@ class Library():
                     break
                 else:
                     conn.sendall(f"\nThe media type '{type}' doesn't exist in the library".encode())
+                break
 
         except ValueError as error:
             conn.sendall("\nInvalid input! Object not added to the library. Please try again".encode())
@@ -400,7 +437,7 @@ def recive(conn, adress):
         close_file.close()
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(("172.20.201.140", 65432))
+server.bind(("192.168.1.227", 65432))
 server.listen()
 clients = {}
 
