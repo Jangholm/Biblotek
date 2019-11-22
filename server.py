@@ -431,14 +431,18 @@ def recive(conn, adress):
     with open("reg.json", "w") as close_file:
         json.dump(dict_list, close_file)
         close_file.close()
+def main():
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(("192.168.1.227", 65432))
-server.listen()
-clients = {}
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(("172.20.201.85", 65432))
+    server.listen()
+    clients = {}
 
-while True:
-    conn, adress = server.accept()
-    clients[conn] = adress
-    myThread = Thread(target=recive, args=(conn,adress), daemon=True)
-    myThread.start()
+    while True:
+        conn, adress = server.accept()
+        clients[conn] = adress
+        myThread = Thread(target=recive, args=(conn,adress), daemon=True)
+        myThread.start()
+
+if __name__ == "__main__":
+    main()
