@@ -296,9 +296,6 @@ class Book():
             self.type = "book"
             self.dict = {"Title": input_title, "Author": input_author, "Pages": input_pages, "Purchase price": input_purchase_price,
                          "Purchase year": input_purchase_year, "Type": "book"}
-            #if data == "quit":
-                #conn.sendall(data.encode())
-                #break
             break
 
     def object_dict(self, list):
@@ -396,7 +393,7 @@ class Library():
         except ValueError as error:
             conn.sendall("\nInvalid input! Object not added to the library. Please try again".encode())
 
-def broadcast(data, conn, adress):
+def menu(data, conn, adress):
     data = data.lower()
 
     if data == "1":
@@ -415,7 +412,6 @@ def broadcast(data, conn, adress):
         for book in new:
             conn.sendall(book.encode())
 
-
 def recive(conn, adress):
     while True:
         try:
@@ -427,7 +423,7 @@ def recive(conn, adress):
             elif data == "quit":
                 conn.sendall(data.encode())
                 break
-            broadcast(data, conn, adress)
+            menu(data, conn, adress)
         except Exception:
             break
     conn.close()
