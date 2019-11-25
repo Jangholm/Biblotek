@@ -115,15 +115,6 @@ class Book():
 
     def create_book(self, book, conn):
         """Skapar bok objekt"""
-        #bookQ = ["Name, "Author"]
-        #answer = []
-        #for q in bookQ:
-        #    send(q)
-        #questions = ["Enter the name of the book: ", "Enter the author: ","Enter amount of pages:","Enter purchase price:", "Enter purchase year: "   ]
-        #id = 0
-        #for x in questions:
-            #id += 1
-            #conn.sendall(x.encode())
 
         while True:
             conn.sendall("Enter the name of the book: ".encode())
@@ -307,8 +298,6 @@ class Library():
                     default_object = Book()
                     conn.sendall(f"Add book: ".encode())
                     default_object.create_book(default_object, conn)
-                    #if not default_object.Title or not default_object.Author:
-                        #raise ValueError
                     default_object.check_object_year()
                     default_object.object_dict(dict_list)
                     default_object.dict_price()
@@ -319,8 +308,6 @@ class Library():
                 elif type == "movie":
                     default_object = Movie()
                     default_object.create_movie(default_object, conn)
-                    #if not default_object.Title or not default_object.Director:
-                     #   raise ValueError(conn.sendall("\nInvalid title or author! Object not added to the library."))
                     default_object.check_object_year(conn)
                     default_object.object_dict(dict_list)
                     default_object.dict_price()
@@ -331,8 +318,6 @@ class Library():
                 elif type == "cd":
                     default_object = Cd()
                     default_object.create_cd(default_object, conn)
-                    #if not default_object.Title or not default_object.Artist:
-                      #  raise ValueError("\nInvalid title or artist! Object not added to the library.")
                     default_object.object_dict(dict_list)
                     default_object.check_object_value(dict_list)
                     default_object.dict_price()
@@ -346,8 +331,7 @@ class Library():
                 else:
                     conn.sendall(f"\nThe media type '{type}' doesn't exist in the library".encode())
                 break
-
-        except ValueError as error:
+        except ValueError:
             conn.sendall("\nInvalid input! Object not added to the library. Please try again".encode())
 
 """ Öppnar json filen där objekten från förra programkörningen finns lagrade som dikter,
@@ -400,7 +384,6 @@ def menu(data, conn, adress):
     elif data == "2":
         print_library = Library()
         sorted_list = print_library.sorting_list(total_list)
-        print(sorted_list)
         new = print_library.print_list(sorted_list)
         for book in new:
             conn.sendall(book.encode())
@@ -427,13 +410,13 @@ def recive(conn, adress):
 def main():
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(("172.20.201.85", 65432))
+    server.bind(("192.168.1.227", 65432))
     server.listen()
-    clients = {}
+    #clients = {}
 
     while True:
         conn, adress = server.accept()
-        clients[conn] = adress
+        #clients[conn] = adress
         myThread = Thread(target=recive, args=(conn,adress), daemon=True)
         myThread.start()
 
