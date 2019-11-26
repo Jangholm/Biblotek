@@ -1,10 +1,92 @@
 import json
-from appJar import gui
 import socket
 from threading import Thread
 import datetime
 
 total_list = []
+
+class Cd():
+    """Default värderna för ett cd objekt"""
+    def __init__(self, title = "", artist = "", songs = 0, length = 0, purchase_price = 0):
+        self.Title = title
+        self.Artist = artist
+        self.Songs = songs
+        self.Length = length
+        self.Purchase_price = purchase_price
+        self.type = "cd"
+
+    def __str__(self):
+        return "Title: {}\nArtist: {}\nSongs: {}\nLength: {}\nPurchase price: {}\nType: {}\n".format(self.Title, self.Artist, self.Songs, self.Length, self.Purchase_price, self.type)
+
+    def create_cd(self, cd, conn):
+        """Skapar cd objekt"""
+        while True:
+            conn.sendall(f"Add cd \n".encode())
+            conn.sendall("Enter the name of the cd: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_title = data
+            conn.sendall("Enter the artist: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_artist = data
+            conn.sendall("Enter the amount of songs: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_songs = int(data)
+            conn.sendall("Enter the duration (min): ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_length = data
+            conn.sendall("Enter purchase price: ".encode())
+            data = conn.recv(1024)
+            data = data.decode()
+            if data == "quit":
+                conn.sendall(data.encode())
+                break
+            input_purchase_price = int(data)
+
+            self.Title = input_title
+            self.Artist = input_artist
+            self.Length = input_length
+            self.Songs = input_songs
+            self.Purchase_price = input_purchase_price
+            self.type = "cd"
+            self.dict = {"Title": input_title, "Artist": input_artist, "Length": input_length,
+                         "Purchase price": input_purchase_price, "Songs": input_songs,
+                         "Type": "cd"}
+            break
+
+    def object_dict(self, list):
+        """Lägger till objektets dikt i dict_list"""
+        list.append(self.dict)
+
+    def check_object_value(self, list):
+        """Priset som användaren skrev in ska delas på antalet 'cd' objekt som har samma
+            värden i 'Title' och 'Artist' och det objekt användaren har skapat."""
+        amount = 0
+        for cd in list:
+            if cd["Type"] == "cd" and self.dict["Title"] in cd["Title"] and self.dict["Artist"] in cd["Artist"]:
+                amount +=1
+
+        self.Purchase_price = self.Purchase_price // amount
+        return self.Purchase_price
+
+    def dict_price(self):
+        """Lägger till det nya korrigerade priset i objektets dikt värde 'Purchase Price'."""
+        self.dict["Purchase price"] = self.Purchase_price
 
 class Movie():
     """Default värderna för ett film objekt"""
@@ -115,6 +197,7 @@ class Book():
 
     def create_book(self, book, conn):
         """Skapar bok objekt"""
+
 
         while True:
             conn.sendall("Enter the name of the book: ".encode())
@@ -402,21 +485,56 @@ def recive(conn, adress):
             menu(data, conn, adress)
         except Exception:
             break
-    conn.close()
-
     with open("reg.json", "w") as close_file:
         json.dump(dict_list, close_file)
         close_file.close()
+    conn.close()
+
+
+""" Öppnar json filen där objekten från förra programkörningen finns lagrade som dikter,
+    och för över de till listan 'dict_list'. För att sedan lägga till de i listan 'total_list'
+    som är listan som senare kommer att sorteras in i en variabel och printas när användaren 
+    vill öppna bibloteket, så skapas nya objekt av de dikter som finns i 'dict_list'. 
+    Dessa objekt läggs sedan till i 'total_list'."""
+with open("reg.json", "r") as open_file:
+    dict_list = json.load(open_file)
+    for item in dict_list:
+        if item["Type"] == "book":
+            default_book = Book()
+            default_book.Title = item["Title"]
+            default_book.Author = item["Author"]
+            default_book.Pages = item["Pages"]
+            default_book.Purchase_price = item["Purchase price"]
+            default_book.Purchase_year = item["Purchase year"]
+            default_book.type = "book"
+            total_list.append(default_book)
+        elif item["Type"] == "movie":
+            default_movie = Movie()
+            default_movie.Title = item["Title"]
+            default_movie.Director = item["Director"]
+            default_movie.Length = item["Length"]
+            default_movie.Purchase_price = item["Purchase price"]
+            default_movie.Purchase_year = item["Purchase year"]
+            default_movie.Type = "movie"
+            total_list.append(default_movie)
+        elif item["Type"] == "cd":
+            default_cd = Cd()
+            default_cd.Title = item["Title"]
+            default_cd.Artist = item["Artist"]
+            default_cd.Length = item["Length"]
+            default_cd.Purchase_price = item["Purchase price"]
+            default_cd.Songs = item["Songs"]
+            default_cd.Type = "cd"
+            total_list.append(default_cd)
+
 def main():
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(("192.168.1.227", 65432))
+    server.bind(("127.0.0.1", 65432))
     server.listen()
-    #clients = {}
 
     while True:
         conn, adress = server.accept()
-        #clients[conn] = adress
         myThread = Thread(target=recive, args=(conn,adress), daemon=True)
         myThread.start()
 

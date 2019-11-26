@@ -35,7 +35,7 @@ gui.addEntry("Input", 5,0,4,5)
 gui.addButtons(["Send", "Close"], press, 5,4)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("192.168.1.227", 65432))
+client.connect(("127.0.0.1", 65432))
 myThread = Thread(target=recive_from, args=(client,), daemon=True)
 myThread.start()
 
