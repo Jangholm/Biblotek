@@ -292,7 +292,6 @@ class Library():
             lägger till objektets dikt i 'dict_list', och lägger till objektet i total_list."""
         try:
             while True:
-                test_lista = []
                 if type == "book":
                     default_object = Book()
                     conn.sendall(f"Add book: ".encode())
@@ -413,11 +412,9 @@ def main():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(("127.0.0.1", 65432))
     server.listen()
-    #clients = {}
 
     while True:
         conn, adress = server.accept()
-        #clients[conn] = adress
         myThread = Thread(target=recive, args=(conn,adress), daemon=True)
         myThread.start()
 
