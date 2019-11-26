@@ -1,53 +1,9 @@
-from Books import Book
-from Library import Library
-from Movies import Movie
-from Cd import Cd
 import json
-from appJar import gui
 import socket
 from threading import Thread
 import datetime
 
-
 total_list = []
-
-
-
-""" Öppnar json filen där objekten från förra programkörningen finns lagrade som dikter,
-    och för över de till listan 'dict_list'. För att sedan lägga till de i listan 'total_list'
-    som är listan som senare kommer att sorteras in i en variabel och printas när användaren 
-    vill öppna bibloteket, så skapas nya objekt av de dikter som finns i 'dict_list'. 
-    Dessa objekt läggs sedan till i 'total_list'."""
-with open("reg.json", "r") as open_file:
-    dict_list = json.load(open_file)
-    for item in dict_list:
-        if item["Type"] == "book":
-            default_book = Book()
-            default_book.Title = item["Title"]
-            default_book.Author = item["Author"]
-            default_book.Pages = item["Pages"]
-            default_book.Purchase_price = item["Purchase price"]
-            default_book.Purchase_year = item["Purchase year"]
-            default_book.type = "book"
-            total_list.append(default_book)
-        elif item["Type"] == "movie":
-            default_movie = Movie()
-            default_movie.Title = item["Title"]
-            default_movie.Director = item["Director"]
-            default_movie.Length = item["Length"]
-            default_movie.Purchase_price = item["Purchase price"]
-            default_movie.Purchase_year = item["Purchase year"]
-            default_movie.Type = "movie"
-            total_list.append(default_movie)
-        elif item["Type"] == "cd":
-            default_cd = Cd()
-            default_cd.Title = item["Title"]
-            default_cd.Artist = item["Artist"]
-            default_cd.Length = item["Length"]
-            default_cd.Purchase_price = item["Purchase price"]
-            default_cd.Songs = item["Songs"]
-            default_cd.Type = "cd"
-            total_list.append(default_cd)
 
 class Cd():
     """Default värderna för ett cd objekt"""
@@ -241,16 +197,6 @@ class Book():
 
     def create_book(self, book, conn):
         """Skapar bok objekt"""
-        #bookQ = ["Name, "Author"]
-        #answer = []
-        #for q in bookQ:
-        #    send(q)
-        #questions = ["Enter the name of the book: ", "Enter the author: ","Enter amount of pages:","Enter purchase price:", "Enter purchase year: "   ]
-        #id = 0
-        #for x in questions:
-            #id += 1
-            #conn.sendall(x.encode())
-
         while True:
             conn.sendall("Enter the name of the book: ".encode())
             data = conn.recv(1024)
@@ -346,12 +292,11 @@ class Library():
             lägger till objektets dikt i 'dict_list', och lägger till objektet i total_list."""
         try:
             while True:
+                test_lista = []
                 if type == "book":
                     default_object = Book()
                     conn.sendall(f"Add book: ".encode())
                     default_object.create_book(default_object, conn)
-                    #if not default_object.Title or not default_object.Author:
-                        #raise ValueError
                     default_object.check_object_year()
                     default_object.object_dict(dict_list)
                     default_object.dict_price()
@@ -362,8 +307,6 @@ class Library():
                 elif type == "movie":
                     default_object = Movie()
                     default_object.create_movie(default_object, conn)
-                    #if not default_object.Title or not default_object.Director:
-                     #   raise ValueError(conn.sendall("\nInvalid title or author! Object not added to the library."))
                     default_object.check_object_year(conn)
                     default_object.object_dict(dict_list)
                     default_object.dict_price()
@@ -374,8 +317,6 @@ class Library():
                 elif type == "cd":
                     default_object = Cd()
                     default_object.create_cd(default_object, conn)
-                    #if not default_object.Title or not default_object.Artist:
-                      #  raise ValueError("\nInvalid title or artist! Object not added to the library.")
                     default_object.object_dict(dict_list)
                     default_object.check_object_value(dict_list)
                     default_object.dict_price()
@@ -407,7 +348,6 @@ def menu(data, conn, adress):
     elif data == "2":
         print_library = Library()
         sorted_list = print_library.sorting_list(total_list)
-        print(sorted_list)
         new = print_library.print_list(sorted_list)
         for book in new:
             conn.sendall(book.encode())
@@ -426,21 +366,58 @@ def recive(conn, adress):
             menu(data, conn, adress)
         except Exception:
             break
-    conn.close()
-
     with open("reg.json", "w") as close_file:
         json.dump(dict_list, close_file)
         close_file.close()
+    conn.close()
+
+
+""" Öppnar json filen där objekten från förra programkörningen finns lagrade som dikter,
+    och för över de till listan 'dict_list'. För att sedan lägga till de i listan 'total_list'
+    som är listan som senare kommer att sorteras in i en variabel och printas när användaren 
+    vill öppna bibloteket, så skapas nya objekt av de dikter som finns i 'dict_list'. 
+    Dessa objekt läggs sedan till i 'total_list'."""
+with open("reg.json", "r") as open_file:
+    dict_list = json.load(open_file)
+    for item in dict_list:
+        if item["Type"] == "book":
+            default_book = Book()
+            default_book.Title = item["Title"]
+            default_book.Author = item["Author"]
+            default_book.Pages = item["Pages"]
+            default_book.Purchase_price = item["Purchase price"]
+            default_book.Purchase_year = item["Purchase year"]
+            default_book.type = "book"
+            total_list.append(default_book)
+        elif item["Type"] == "movie":
+            default_movie = Movie()
+            default_movie.Title = item["Title"]
+            default_movie.Director = item["Director"]
+            default_movie.Length = item["Length"]
+            default_movie.Purchase_price = item["Purchase price"]
+            default_movie.Purchase_year = item["Purchase year"]
+            default_movie.Type = "movie"
+            total_list.append(default_movie)
+        elif item["Type"] == "cd":
+            default_cd = Cd()
+            default_cd.Title = item["Title"]
+            default_cd.Artist = item["Artist"]
+            default_cd.Length = item["Length"]
+            default_cd.Purchase_price = item["Purchase price"]
+            default_cd.Songs = item["Songs"]
+            default_cd.Type = "cd"
+            total_list.append(default_cd)
+
 def main():
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(("172.20.201.85", 65432))
+    server.bind(("127.0.0.1", 65432))
     server.listen()
-    clients = {}
+    #clients = {}
 
     while True:
         conn, adress = server.accept()
-        clients[conn] = adress
+        #clients[conn] = adress
         myThread = Thread(target=recive, args=(conn,adress), daemon=True)
         myThread.start()
 
